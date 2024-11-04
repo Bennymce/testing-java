@@ -1,0 +1,16 @@
+{
+    "Version": "2012-10-17",
+    "Statement": {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::010438494949:oidc-provider/https://oidc.eks.us-east-2.amazonaws.com/id/100E584D809B03C2057ADE0FC1AD625E"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "https://oidc.eks.us-east-2.amazonaws.com/id/100E584D809B03C2057ADE0FC1AD625E:sub": "system:serviceaccount:jenkins:jenkins-service-account"
+        }
+      }
+    }
+  }
+  

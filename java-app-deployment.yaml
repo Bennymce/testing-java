@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-java-app-deployment
+  namespace: testing
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-java-app
+  template:
+    metadata:
+      labels:
+        app: my-java-app
+    spec:
+      serviceAccountName: jenkins-service-account
+      containers:
+      - name: my-java-app
+        image: image  # Replace with your actual Docker image
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8081
+        volumeMounts:
+        - name: my-volume
+          mountPath: /data  # Mount path in the container
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8081
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+          periodSeconds: 5
+          failureThreshold: 3
+      volumes:
+      - name: my-volume
+        persistentVolumeClaim:
+          claimName: java-pvc  # Reference to your PVC
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-java-app-service
+  namespace: testing
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8081
+  selector:
+    app: my-java-app

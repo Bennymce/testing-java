@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: java-pvc  # Name of your PVC
+  namespace: testing  # Namespace for the PVC
+spec:
+  accessModes:
+  - ReadWriteOnce  # Access mode for the PVC
+  resources:
+    requests:
+      storage: 5Gi  # Adjust the storage size as needed
+  storageClassName: aws-ebs-storage-class  # Reference to your StorageClass

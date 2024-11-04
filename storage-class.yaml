@@ -1,0 +1,10 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: aws-ebs-storage-class  # Name of your storage class
+provisioner: ebs.csi.aws.com  # Use the EBS CSI driver
+parameters:
+  type: gp2  # Type of EBS volume (gp2, gp3, io1, io2, st1, sc1)
+  fsType: ext4  # Filesystem type to use (ext4 is common)
+reclaimPolicy: Delete  # Retain, Delete, or Recycle
+volumeBindingMode: WaitForFirstConsumer  # Optional: ensures volume binding waits for pod scheduling
