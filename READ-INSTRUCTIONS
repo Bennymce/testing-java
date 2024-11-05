@@ -1,0 +1,3 @@
+DEPLOYING A JAVA-BASE APP TO EKS CLUSTER 
+-created IAM ROLE and added some policies like AmazonEC2ContainerRegistryFullAccess for ECR access, AmazonEKSClusterPolicy, AmazonEKS_CNI_Policy and AmazonEC2ContainerRegistryReadOnly for jenins to access and authenticate with EKS cluster and ECR
+Attach this ROLE to the jenkins EC2 server 

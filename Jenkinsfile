@@ -52,6 +52,7 @@ pipeline {
             steps {
                 script {
                     // Retrieve an authentication token and use it to log in to ECR
+                withAWS(region: 'us-east-2', role: 'arn:aws:iam::010438494949:role/Testing-role-jenkins') {    
                     sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 010438494949.dkr.ecr.us-east-2.amazonaws.com'
                 }
             }
