@@ -52,60 +52,59 @@ pipeline {
             steps {
                 script {
                     // Retrieve an authentication token and use it to log in to ECR
-                withAWS(region: 'us-east-2', role: 'arn:aws:iam::010438494949:role/Testing-role-jenkins') {    
-                    sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 010438494949.dkr.ecr.us-east-2.amazonaws.com'
+                    withAWS(region: AWS_REGION, role: 'arn:aws:iam::010438494949:role/Testing-role-jenkins') {    
+                        sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 010438494949.dkr.ecr.us-east-2.amazonaws.com'
+                    }
                 }
             }
         }
 
-//         stage('Build Docker Image') {
-//             steps {
-//                 script {
-//                     echo 'Building Docker image...'
-//                     sh "docker build -t ${IMAGE_NAME} ."
-//                 }
-//             }
-//         }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    echo 'Building Docker image...'
+                    sh "docker build -t ${IMAGE_NAME} ."
+                }
+            }
+        }
 
-//         stage('Tag and Push Docker Image to ECR') {
-//             steps {
-//                 script {
-//                     // Tag the Docker image
-//                     sh "docker tag ${IMAGE_NAME} ${ECR_REPO}:${IMAGE_TAG}"
-//                     // Push the Docker image to ECR
-//                     sh "docker push ${ECR_REPO}:${IMAGE_TAG}"
-//                 }
-//             }
-//         }
+        stage('Tag and Push Docker Image to ECR') {
+            steps {
+                script {
+                    // Push the Docker image to ECR
+                    sh "docker push ${IMAGE_NAME}"
+                }
+            }
+        }
 
-//         stage('Deploy to Kubernetes') {
-//             steps {
-//                 script {
-//                     withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws-credentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-//                         // Update kubeconfig for the EKS cluster
-//                         sh "aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION}"
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws-credentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        // Update kubeconfig for the EKS cluster
+                        sh "aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION}"
 
-//                         // Use 'sed' or a similar tool to update the image in your deployment file
-//                         sh "sed -i 's|image: .*|image: ${IMAGE_NAME}|' java-app-deployment.yaml"
-//                         sh 'kubectl apply -f jenkins-service-account.yaml'
-//                         sh 'kubectl apply -f jenkins-role.yaml'
-//                         sh 'kubectl apply -f jenkins-role-binding.yaml'
-//                         // Apply the Kubernetes deployment configuration
-//                         sh 'kubectl apply -f storage-class.yaml'
-//                         sh 'kubectl apply -f pvc.yaml'
-//                         sh 'kubectl apply -f java-app-deployment.yaml'
+                        // Use 'sed' or a similar tool to update the image in your deployment file
+                        sh "sed -i 's|image: .*|image: ${IMAGE_NAME}|' java-app-deployment.yaml"
+                        sh 'kubectl apply -f jenkins-service-account.yaml'
+                        sh 'kubectl apply -f jenkins-role.yaml'
+                        sh 'kubectl apply -f jenkins-role-binding.yaml'
+                        // Apply the Kubernetes deployment configuration
+                        sh 'kubectl apply -f storage-class.yaml'
+                        sh 'kubectl apply -f pvc.yaml'
+                        sh 'kubectl apply -f java-app-deployment.yaml'
                         
-//                         // Check the status of the pods
-//                         sh 'kubectl get pods --namespace=testing'
-//                     }
-//                 }
-//             }
-//         }
-//     }
-
-//     post {
-//         always {
-//             cleanWs() // Clean the workspace after the build
-//         }
+                        // Check the status of the pods
+                        sh 'kubectl get pods --namespace=testing'
+                    }
+                }
+            }
+        }
     }
- }
+
+    post {
+        always {
+            cleanWs() // Clean the workspace after the build
+        }
+    }
+}
