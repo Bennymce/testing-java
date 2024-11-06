@@ -100,7 +100,7 @@ pipeline {
                         sh "sed -i 's|image: .*|image: ${IMAGE_NAME}|' java-app-deployment.yaml"
 
                         // Apply Kubernetes configurations
-                        sh 'kubectl create namespace testing || true'
+                        // sh 'kubectl create namespace testing || true'
                         sh 'kubectl apply -f jenkins-service-account.yaml'
                         sh 'kubectl apply -f jenkins-role.yaml'
                         sh 'kubectl apply -f jenkins-role-binding.yaml'
