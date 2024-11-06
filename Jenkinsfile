@@ -48,12 +48,17 @@ pipeline {
             }
         }
 
-        stage('Login to AWS ECR') {
+    
+        stage('Login to ECR') {
             steps {
                 script {
-                    // Retrieve an authentication token and use it to log in to ECR
-                    // withAWS(region: AWS_REGION, role: 'arn:aws:iam::010438494949:role/Testing-role-jenkins') {    
-                        sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 010438494949.dkr.ecr.us-east-2.amazonaws.com'
+                    echo "Logging in to AWS ECR..."
+                    def loginCommand = "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}"
+                    try {
+                        sh loginCommand
+                        echo "Login successful!"
+                    } catch (Exception e) {
+                        error "Login to ECR failed: ${e.getMessage()}"
                     }
                 }
             }
@@ -107,4 +112,4 @@ pipeline {
     //         cleanWs() // Clean the workspace after the build
     //     }
     }
-
+}
