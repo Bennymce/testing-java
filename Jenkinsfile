@@ -27,7 +27,7 @@ pipeline {
                 script {
                     def tags = sh(script: "git tag", returnStdout: true).trim()
                     if (tags) {
-                         env.VERSION = sh(script: "git describe --tags --abbrev=0", returnStdout: true).trim()
+                        env.VERSION = sh(script: "git describe --tags --abbrev=0", returnStdout: true).trim()
                     } else {
                         echo 'No tags found. Using default version.'
                         env.VERSION = "default-version" // Set a default version if no tags are present
@@ -48,39 +48,45 @@ pipeline {
             }
         }
 
-    
         stage('Login to ECR') {
             steps {
                 script {
-                    echo "Logging in to AWS ECR..."
-                    def loginCommand = "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}"
-                    try {
-                        sh loginCommand
-                        echo "Login successful!"
-                    } catch (Exception e) {
-                        error "Login to ECR failed: ${e.getMessage()}"
+                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws-credentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        echo "Logging in to AWS ECR..."
+                        def loginCommand = "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}"
+                        try {
+                            sh loginCommand
+                            echo "Login successful!"
+                        } catch (Exception e) {
+                            error "Login to ECR failed: ${e.getMessage()}"
+                        }
                     }
                 }
             }
         }
 
-    //     stage('Build Docker Image') {
-    //         steps {
-    //             script {
-    //                 echo 'Building Docker image...'
-    //                 sh "docker build -t ${IMAGE_NAME} ."
-    //             }
-    //         }
-    //     }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    echo 'Building Docker image...'
+                    sh "docker build -t ${IMAGE_NAME} ."
+                }
+            }
+        }
 
-    //     stage('Tag and Push Docker Image to ECR') {
-    //         steps {
-    //             script {
-    //                 // Push the Docker image to ECR
-    //                 sh "docker push ${IMAGE_NAME}"
-    //             }
-    //         }
-    //     }
+        stage('Tag and Push Docker Image to ECR') {
+            steps {
+                script {
+                    echo 'Pushing Docker image to ECR...'
+                    try {
+                        sh "docker push ${IMAGE_NAME}"
+                        echo "Docker image pushed successfully!"
+                    } catch (Exception e) {
+                        error "Failed to push Docker image: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
 
     //     stage('Deploy to Kubernetes') {
     //         steps {
@@ -89,16 +95,17 @@ pipeline {
     //                     // Update kubeconfig for the EKS cluster
     //                     sh "aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION}"
 
-    //                     // Use 'sed' or a similar tool to update the image in your deployment file
+    //                     // Update image in the Kubernetes deployment file
     //                     sh "sed -i 's|image: .*|image: ${IMAGE_NAME}|' java-app-deployment.yaml"
+
+    //                     // Apply Kubernetes configurations
     //                     sh 'kubectl apply -f jenkins-service-account.yaml'
     //                     sh 'kubectl apply -f jenkins-role.yaml'
     //                     sh 'kubectl apply -f jenkins-role-binding.yaml'
-    //                     // Apply the Kubernetes deployment configuration
     //                     sh 'kubectl apply -f storage-class.yaml'
     //                     sh 'kubectl apply -f pvc.yaml'
     //                     sh 'kubectl apply -f java-app-deployment.yaml'
-                        
+
     //                     // Check the status of the pods
     //                     sh 'kubectl get pods --namespace=testing'
     //                 }
@@ -107,9 +114,9 @@ pipeline {
     //     }
     // }
 
-    // post {
-    //     always {
-    //         cleanWs() // Clean the workspace after the build
-    //     }
+    post {
+        always {
+            cleanWs() // Clean the workspace after the build
+        }
     }
 }
