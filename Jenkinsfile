@@ -101,8 +101,8 @@ pipeline {
 
                         // Apply Kubernetes configurations
                         // sh 'kubectl create namespace testing || true'
-                        sh 'kubectl apply -f jenkins-service-account.yaml'
-                        sh 'kubectl apply -f jenkins-role.yaml'
+                        sh 'kubectl apply -f jenkins-service-account.yaml --validate=false'
+                        sh 'kubectl apply -f jenkins-role.yaml' 
                         sh 'kubectl apply -f jenkins-role-binding.yaml'
                         sh 'kubectl apply -f storage-class.yaml'
                         sh 'kubectl apply -f pvc.yaml'
