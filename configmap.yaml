@@ -1,18 +1,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  creationTimestamp: "2024-11-04T17:16:01Z"
   name: aws-auth
   namespace: kube-system
   resourceVersion: "500104"
   uid: e4975466-74a7-4e9a-84e3-2d4f99f352e7
 data:
-  mapRoles: |
-    - groups:
-      - system:bootstrappers
-      - system:nodes
-      rolearn: arn:aws:iam::010438494949:role/eksctl-test-cluster-nodegroup-test-NodeInstanceRole-z74YzpbdbfRh
-      username: system:node:{{EC2PrivateDNSName}}
   mapUsers: |
     - userarn: arn:aws:iam::010438494949:user/testing-user
       username: jenkins-user

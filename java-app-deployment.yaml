@@ -23,6 +23,13 @@ spec:
         volumeMounts:
         - name: my-volume
           mountPath: /data  # Mount path in the container
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"  # 1 CPU = 1000m (millicores)
         livenessProbe:
           httpGet:
             path: /healthz
