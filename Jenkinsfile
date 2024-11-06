@@ -88,36 +88,35 @@ pipeline {
             }
         }
 
-    //     stage('Deploy to Kubernetes') {
-    //         steps {
-    //             script {
-    //                 withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws-credentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-    //                     // Update kubeconfig for the EKS cluster
-    //                     sh "aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION}"
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws-credentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        // Update kubeconfig for the EKS cluster
+                        sh "aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION}"
 
-    //                     // Update image in the Kubernetes deployment file
-    //                     sh "sed -i 's|image: .*|image: ${IMAGE_NAME}|' java-app-deployment.yaml"
+                        // Update image in the Kubernetes deployment file
+                        sh "sed -i 's|image: .*|image: ${IMAGE_NAME}|' java-app-deployment.yaml"
 
-    //                     // Apply Kubernetes configurations
-    //                     sh 'kubectl apply -f jenkins-service-account.yaml'
-    //                     sh 'kubectl apply -f jenkins-role.yaml'
-    //                     sh 'kubectl apply -f jenkins-role-binding.yaml'
-    //                     sh 'kubectl apply -f storage-class.yaml'
-    //                     sh 'kubectl apply -f pvc.yaml'
-    //                     sh 'kubectl apply -f java-app-deployment.yaml'
+                        // Apply Kubernetes configurations
+                        sh 'kubectl apply -f jenkins-service-account.yaml'
+                        sh 'kubectl apply -f jenkins-role.yaml'
+                        sh 'kubectl apply -f jenkins-role-binding.yaml'
+                        sh 'kubectl apply -f storage-class.yaml'
+                        sh 'kubectl apply -f pvc.yaml'
+                        sh 'kubectl apply -f java-app-deployment.yaml'
 
-    //                     // Check the status of the pods
-    //                     sh 'kubectl get pods --namespace=testing'
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+                        // Check the status of the pods
+                        sh 'kubectl get pods --namespace=testing'
+                    }
+                }
+            }
+        }
+    }
 
-    // post {
-    //     always {
-    //         cleanWs() // Clean the workspace after the build
-    //     }
-    // }
+    post {
+        always {
+            cleanWs() // Clean the workspace after the build
+        }
+    }
   }
-}
