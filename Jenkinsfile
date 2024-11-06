@@ -88,6 +88,17 @@ pipeline {
             }
         }
 
+
+
+
+        stage('Create Namespace') {
+            steps {
+                script {
+                    sh "kubectl create namespace testing || true"
+                }
+            }
+        } 
+
         stage('Deploy to Kubernetes') {
             steps {
                 script {
