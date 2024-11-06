@@ -114,10 +114,10 @@ pipeline {
     //     }
     // }
 
-    post {
-        always {
-            cleanWs() // Clean the workspace after the build
-        }
-    }
+    // post {
+    //     always {
+    //         cleanWs() // Clean the workspace after the build
+    //     }
+    // }
   }
 }
