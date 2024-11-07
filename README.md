@@ -137,3 +137,25 @@ mv ~/.aws/credentials ~/.aws/credentials.bak
 unset AWS_ACCESS_KEY_ID
 unset AWS_SECRET_ACCESS_KEY
 
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Effect": "Allow",
+			"Principal": {
+				"Service": "ec2.amazonaws.com"
+			},
+			"Action": "sts:AssumeRole"
+		}
+	]
+}
+
+
+
+kubectl edit configmap aws-auth -n kube-system
+Verify kubectl Authentication in Jenkins
+kubectl get nodes --namespace=kube-system
+kubectl apply -f configmap.yaml
+
+kubectl get pods -n kube-system -l app.kubernetes.io/name=ebs-csi-controller
+
