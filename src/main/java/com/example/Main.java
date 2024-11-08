@@ -14,6 +14,10 @@ public class Main {
             HttpServer server = HttpServer.create(new InetSocketAddress(8081), 0);
             server.createContext("/healthz", new HealthCheckHandler()); // Health check endpoint
             server.createContext("/ready", new ReadinessCheckHandler()); // Readiness endpoint
+
+            // Handle / for the root path
+            server.createContext("/", new RootHandler()); // Root path
+            
             server.setExecutor(null); // Creates a default executor
             server.start();
             System.out.println("Server is running on port 8081...");
@@ -26,7 +30,7 @@ public class Main {
     static class HealthCheckHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            String response = "Healthy";
+            String response = "Welcome to the Home Page!";
             exchange.sendResponseHeaders(200, response.length());
             OutputStream os = exchange.getResponseBody();
             os.write(response.getBytes());

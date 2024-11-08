@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: testing-java-app-deployment
+  name: my-java-app-deployment
   namespace: testing
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: testing-java-app
+      app: my-java-app
   template:
     metadata:
       labels:
-        app: testing-java-app
+        app: my-java-app
     spec:
       serviceAccountName: jenkins-service-account
       containers:
-      - name: testing-java-app
+      - name: my-java-app
         image: image  # Replace with your actual Docker image
         imagePullPolicy: Always
         ports:
@@ -54,20 +54,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: testing-java-app-service
+  name: my-java-app-service
   namespace: testing
-  annotations:
-    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-2:010438494949:certificate/a30ac5ba-f5ff-413b-a3b9-ffd6e0c23f7c
-    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
-    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
 spec:
-  type: LoadBalancer
   selector:
-    app: testing-java-app
+    app: my-java-app
   ports:
-    - protocol: TCP
+    - name: http
       port: 80
       targetPort: 8081
-    - protocol: TCP
-      port: 443
-      targetPort: 8081
+  type: ClusterIP   # Using ClusterIP since the ALB will handle traffic
