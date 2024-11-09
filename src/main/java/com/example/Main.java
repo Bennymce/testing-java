@@ -12,10 +12,10 @@ public class Main {
         try {
             // Create an HTTP server that listens on port 8081
             HttpServer server = HttpServer.create(new InetSocketAddress(8081), 0);
+            
+            // Define contexts for different paths
             server.createContext("/healthz", new HealthCheckHandler()); // Health check endpoint
             server.createContext("/ready", new ReadinessCheckHandler()); // Readiness endpoint
-
-            // Handle / for the root path
             server.createContext("/", new RootHandler()); // Root path
             
             server.setExecutor(null); // Creates a default executor
@@ -26,11 +26,23 @@ public class Main {
         }
     }
 
+    // Handler for root path
+    static class RootHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            String response = "Welcome to Bosslady!";
+            exchange.sendResponseHeaders(200, response.length());
+            OutputStream os = exchange.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+        }
+    }
+
     // Handler for health check
     static class HealthCheckHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            String response = "Welcome to the Home Page!";
+            String response = "Healthy";
             exchange.sendResponseHeaders(200, response.length());
             OutputStream os = exchange.getResponseBody();
             os.write(response.getBytes());
