@@ -17,11 +17,13 @@ pipeline {
 
         stage('Configure AWS CLI') {
             steps {
-                // Set up AWS CLI and ensure eksctl is available
-                sh '''
-                    aws configure set region $AWS_REGION
-                    aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-                '''
+                // Set up AWS CLI and configure eksctl
+                withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws-credentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    sh '''
+                        aws configure set region $AWS_REGION
+                        aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+                    '''
+                }
             }
         }
 
@@ -31,7 +33,7 @@ pipeline {
                     // Apply the deployment and service YAML files to the EKS cluster
                     sh '''
                         kubectl apply -f nginx-deployment.yaml
-                        
+                        kubectl apply -f nginx-service.yaml
                     '''
                 }
             }
@@ -53,7 +55,7 @@ pipeline {
     post {
         always {
             script {
-                // Clean up or print resource status
+                // Display all resources in the nginx-namespace
                 sh 'kubectl get all -n nginx-namespace'
             }
         }
