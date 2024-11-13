@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION = 'us-east-2'
-        CLUSTER_NAME = 'dev-cluster'
+        CLUSTER_NAME = 'staging-cluster'
     }
 
     stages {
