@@ -22,7 +22,7 @@ pipeline {
                     sh '''
                         aws configure set region $AWS_REGION
                         aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME --role-arn arn:aws:iam::010438494949:role/testing-user
-                        aws eks get-token --cluster-name staging-cluster > ~/.kube/config
+                      
                         kubectl apply -f nginx-deployment.yaml
                     '''
                 }
