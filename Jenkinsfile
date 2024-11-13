@@ -15,25 +15,15 @@ pipeline {
             }            
         }
 
-        stage('Configure AWS CLI') {
+        stage('Deploy Nginx to EKS') {
             steps {
                 // Set up AWS CLI and configure eksctl
                 withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws-credentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                     sh '''
                         aws configure set region $AWS_REGION
                         aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-                    '''
-                }
-            }
-        }
-
-        stage('Deploy Nginx to EKS') {
-            steps {
-                script {
-                    // Apply the deployment and service YAML files to the EKS cluster
-                    sh '''
+                        aws eks get-token --cluster-name staging-cluster > ~/.kube/config
                         kubectl apply -f nginx-deployment.yaml
-                        kubectl apply -f nginx-service.yaml
                     '''
                 }
             }
