@@ -15,32 +15,32 @@ pipeline {
             }            
         }
 
-        stage('Deploy Nginx to EKS') {
-            steps {
-                // Set up AWS CLI and configure eksctl
-                withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws-credentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh '''
-                        aws configure set region $AWS_REGION
-                        aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME --role-arn arn:aws:iam::010438494949:role/testing-user
+    //     stage('Deploy Nginx to EKS') {
+    //         steps {
+    //             // Set up AWS CLI and configure eksctl
+    //             withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws-credentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+    //                 sh '''
+    //                     aws configure set region $AWS_REGION
+    //                     aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME --role-arn arn:aws:iam::010438494949:role/testing-user
                       
-                        kubectl apply -f nginx-deployment.yaml
-                    '''
-                }
-            }
-        }
+    //                     kubectl apply -f nginx-deployment.yaml
+    //                 '''
+    //             }
+    //         }
+    //     }
 
-        stage('Verify Deployment') {
-            steps {
-                script {
-                    // Check the status of the Nginx deployment and service
-                    sh '''
-                        kubectl rollout status deployment/nginx-deployment -n nginx-namespace
-                        kubectl get svc nginx-loadbalancer-service -n nginx-namespace
-                    '''
-                }
-            }
-        }
-    }
+    //     stage('Verify Deployment') {
+    //         steps {
+    //             script {
+    //                 // Check the status of the Nginx deployment and service
+    //                 sh '''
+    //                     kubectl rollout status deployment/nginx-deployment -n nginx-namespace
+    //                     kubectl get svc nginx-loadbalancer-service -n nginx-namespace
+    //                 '''
+    //             }
+    //         }
+    //     }
+    // }
     
     post {
         always {
@@ -56,4 +56,6 @@ pipeline {
             echo 'Failed to deploy Nginx to EKS.'
         }
     }
-}
+ }
+
+} 
