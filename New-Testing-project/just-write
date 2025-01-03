@@ -1,0 +1,11 @@
+eksctl create cluster \
+  --name nginx-cluster \
+  --region us-east-1 \
+  --nodegroup-name nginx-nodes \
+  --node-type t2.small \
+  --nodes 2
+
+
+docker tag nginx-app:latest 010438494949.dkr.ecr.us-east-1.amazonaws.com/nginx-app:latest
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 010438494949.dkr.ecr.us-east-1.amazonaws.com
+docker push 010438494949.dkr.ecr.us-east-1.amazonaws.com/nginx-app:latest
