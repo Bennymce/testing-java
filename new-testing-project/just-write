@@ -9,3 +9,18 @@ eksctl create cluster \
 docker tag nginx-app:latest 010438494949.dkr.ecr.us-east-1.amazonaws.com/nginx-app:latest
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 010438494949.dkr.ecr.us-east-1.amazonaws.com
 docker push 010438494949.dkr.ecr.us-east-1.amazonaws.com/nginx-app:latest
+kubectl edit svc argocd-server -n argocd
+kubectl get svc argocd-server -n argocd
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl get pods -n argocd
+kubectl edit svc argocd-server -n argocd (to expose argocd server)
+
+
+
+
+
+
+aws eks describe-cluster --name nginx-cluster --query "cluster.identity.oidc.issuer" --output text
+https://oidc.eks.<region>.amazonaws.com/id/<eks-cluster-id>
+
