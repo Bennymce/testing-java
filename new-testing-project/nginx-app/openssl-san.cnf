@@ -1,0 +1,14 @@
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = req_ext
+prompt = no
+
+[req_distinguished_name]
+O = ArgoCD
+CN = ArgoCD-LoadBalancer
+
+[req_ext]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = acc5734c7c4d94e1e989e4ec4a20aa4e-131051023.us-east-1.elb.amazonaws.com

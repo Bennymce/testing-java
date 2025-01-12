@@ -1,0 +1,101 @@
+eksctl create cluster \
+  --name nginx-cluster \
+  --region us-east-1 \
+  --nodegroup-name nginx-nodes \
+  --node-type t2.small \
+  --nodes 2
+
+
+docker tag nginx-app:latest 010438494949.dkr.ecr.us-east-1.amazonaws.com/nginx-app:latest
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 010438494949.dkr.ecr.us-east-1.amazonaws.com
+docker push 010438494949.dkr.ecr.us-east-1.amazonaws.com/nginx-app:latest
+kubectl edit svc argocd-server -n argocd
+kubectl get svc argocd-server -n argocd
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl get pods -n argocd
+kubectl edit svc argocd-server -n argocd (to expose argocd server)
+
+k8s-elb-a8fb54dc58c0a44e2b756449024a4f5f
+
+
+Security group for Kubernetes ELB a8fb54dc58c0a44e2b756449024a4f5f (nginx/nginx-loadbalancer-service)
+
+
+
+
+aws eks describe-cluster --name nginx-cluster --query "cluster.identity.oidc.issuer" --output text
+https://oidc.eks.<region>.amazonaws.com/id/<eks-cluster-id>
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout argocd.key \
+  -out argocd.crt \
+  -subj "/CN= acc5734c7c4d94e1e989e4ec4a20aa4e-131051023.us-east-1.elb.amazonaws.com/O=ArgoCD"
+
+
+  kubectl create secret tls argocd-tls-secret \
+  --cert=argocd.crt \
+  --key=argocd.key \
+  -n argocd
+
+
+
+
+
+  [req]
+  distinguished_name = req_distinguished_name
+  req_extensions = req_ext
+  prompt = no
+  
+  [req_distinguished_name]
+  O = ArgoCD
+  CN = ArgoCD-LoadBalancer
+  
+  [req_ext]
+  subjectAltName = @alt_names
+  
+  [alt_names]
+  DNS.1 = acc5734c7c4d94e1e989e4ec4a20aa4e-131051023.us-east-1.elb.amazonaws.com
+
+  
+run thius again to gnerate certificate
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout argocd.key \
+  -out argocd.crt \
+  -config openssl-san.cnf
+
+
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: argocd-server
+    namespace: argocd
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          app.kubernetes.io/name: argocd-server
+      spec:
+        containers:
+        - name: argocd-server
+          image: argoproj/argocd:v2.4.0
+          ports:
+          - containerPort: 8080
+            name: http
+          - containerPort: 443
+            name: https
+          volumeMounts:
+          - name: tls-secret
+            mountPath: /etc/tls/private
+            readOnly: true
+          env:
+          - name: ARGOCD_SERVER_TLS_CERT_PATH
+            value: "/etc/tls/private/argocd.crt"
+          - name: ARGOCD_SERVER_TLS_KEY_PATH
+            value: "/etc/tls/private/argocd.key"
+        volumes:
+        - name: tls-secret
+          secret:
+            secretName: argocd-tls-secret
+  
